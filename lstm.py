@@ -14,6 +14,7 @@ import lightning as L
 # we need this to lightning
 from torch.utils.data import TensorDataset, DataLoader
 
+# create a LSTM by hand with some methods
 class LSTMbyHand(L.LightningModule):
     # create and initialize weight and bias
     def __init__(self):
@@ -109,3 +110,8 @@ class LSTMbyHand(L.LightningModule):
             self.log("out_0", output_i)
         else:
             self.log("out_1", output_i)
+
+        return loss
+    
+
+model = LSTMbyHand()

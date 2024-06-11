@@ -111,7 +111,59 @@ class LSTMbyHand(L.LightningModule):
         else:
             self.log("out_1", output_i)
 
-        return loss
-    
+        return loss    
 
 model = LSTMbyHand()
+
+# horrible prediction
+'''print("Company A: Observed = 0, Predicted =",
+      # we pass to the model the values of days 1 to 4
+      # detach catch the gradient
+      model(torch.tensor([0., 0.5, 0.25, 1.])).detach())
+
+print("Company B: Observed = 1, Predicted =",
+       model(torch.tensor([1., 0.5, 0.25, 1.])).detach())'''
+
+# pass the inputs
+# values for both companies, day 1 to 4
+inputs = torch.tensor([[0., 0.5, 0.25, 1.],[1., 0.5, 0.25, 1.]])
+
+# expected output
+labels = torch.tensor([0., 1.])
+
+dataset = TensorDataset(inputs, labels)
+
+dataloader = DataLoader(dataset)
+
+# backpropagation for every Weight and Bias using the data from both companies
+trainer = L.Trainer(max_epochs=2000)
+
+trainer.fit(model, train_dataloaders=dataloader)
+
+print("Company A: Observed = 0, Predicted =",
+      # we pass to the model the values of days 1 to 4
+      # detach catch the gradient
+      model(torch.tensor([0., 0.5, 0.25, 1.])).detach())
+
+print("Company B: Observed = 1, Predicted =",
+       model(torch.tensor([1., 0.5, 0.25, 1.])).detach())
+
+# tensorboard --logdir=lightning_logs to see the graphs
+# this show the evolution of both outputs and the train loss
+
+# adding 1000 epochs using the checkpoint
+path_to_best_checkpoint = trainer.checkpoint_callback.best_model_path
+trainer = L.Trainer(max_epochs=3000)
+trainer.fit(model, train_dataloaders=dataloader, ckpt_path=path_to_best_checkpoint)
+
+path_to_best_checkpoint = trainer.checkpoint_callback.best_model_path
+trainer = L.Trainer(max_epochs=5000)
+trainer.fit(model, train_dataloaders=dataloader, ckpt_path=path_to_best_checkpoint)
+
+print("Company A: Observed = 0, Predicted =",
+      # we pass to the model the values of days 1 to 4
+      # detach catch the gradient
+      model(torch.tensor([0., 0.5, 0.25, 1.])).detach())
+
+print("Company B: Observed = 1, Predicted =",
+       model(torch.tensor([1., 0.5, 0.25, 1.])).detach())
